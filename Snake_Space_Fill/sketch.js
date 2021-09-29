@@ -1,6 +1,6 @@
 
 function setup() {
-  screensize = min(windowWidth,windowWidth);
+  screensize = min(windowWidth,windowHeight);
   createCanvas(screensize,screensize);
   background(9, 132, 227);
   
@@ -12,7 +12,7 @@ function draw() {
 }
 
 function windowResized(){
-  screensize = min(windowWidth,windowWidth);
+  screensize = min(windowWidth,windowHeight);
   resizeCanvas(screensize,screensize);
 }
 function mousePressed() {
