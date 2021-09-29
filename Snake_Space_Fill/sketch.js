@@ -1,4 +1,4 @@
-let segments = 5;
+let segments = 50;
 //Segments the smaller side into as many portions
 
 let gridsize;
