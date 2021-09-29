@@ -48,12 +48,10 @@ function draw() {
   }
   
   if (x<0){
-    print(x)
-    x = segments + x;
-    print(x)
+    x = (floor(width/gridsize) + 1) + x;
   }
   if (y<0){
-    y = segments + y;
+    y = floor(height/gridsize) + y;
   }
   
   if (floor(random(5)) == 0){
