@@ -1,4 +1,4 @@
-let segments = 50;
+let segments = 5;
 //Segments the smaller side into as many portions
 
 let gridsize;
@@ -25,7 +25,7 @@ function setup() {
 function draw() {
   // frameRate(4)
   // background(9, 132, 227);
-  showGrid(segments);
+  // showGrid(segments);
   
   fill(elc);
   
@@ -35,16 +35,16 @@ function draw() {
   
   c = floor(random(4))
   if (c == 0){
-    x = (x + 1)%segments;
+    x = (x + 1)%(floor(width/gridsize) + 1);
   }
   else if(c == 1){
-    y = (y + 1)%segments;
+    y = (y + 1)%(floor(height/gridsize));
   }
   else if(c == 2){
-    x = (x - 1)%segments;
+    x = (x - 1)%(floor(width/gridsize) + 1);
   }
   else{
-    y = (y - 1)%segments;
+    y = (y - 1)%(floor(height/gridsize));
   }
   
   if (x<0){
