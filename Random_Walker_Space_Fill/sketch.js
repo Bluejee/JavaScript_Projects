@@ -1,103 +1,75 @@
-let gridsize = 5;
+let segments = 50;
+//Segments the smaller side into as many portions
 
-let xsegments;
-let ysegments;
+let gridsize;
 
-let cwidth;
-let cheight;
-
-let snake = [];
-let nsnakes = 50;
-let space = [];
-
-
+let x;
+let y;
+let elc;
 function setup() {
-
-  cwidth = windowWidth - windowWidth%gridsize;
-
-  cheight = windowHeight - windowHeight%gridsize;
-
-  createCanvas(cwidth,cheight);
-
-  xsegments = width/gridsize;
-  ysegments = height/gridsize;
-
-  // background(9, 132, 227);
-  strokeWeight(0)
-  background(255)
-
-
-  // print('seg = ',xsegments,ysegments)
-
-  for(i = 0;i<ysegments;i++){
-    space[i] = []
-    for(j = 0;j<xsegments;j++){
-      space[i][j] = 0;
-    }
-  }
-
-  // console.table(space);
-
-
-  for(i = 0;i<nsnakes;i++){
-    snake[i] = new Snake(floor(xsegments/2),floor(ysegments/2));
-
-    // snake[i] = new Snake(floor(random(xsegments)),floor(random(ysegments)));
-  }
+  // screensize = min(windowWidth,windowHeight);
+  // createCanvas(screensize,screensize);
+  createCanvas(windowWidth,windowHeight);
+  gridsize = min(width,height)/segments;
+  background(255);
+  // showGrid();
+  
+  // x = floor(random(segments));
+  // y = floor(random(segments));
+  x = 0;
+  y = 0;
+  elc = color(random(255),random(255),random(255))
 
 }
 
 function draw() {
   // frameRate(4)
   // background(9, 132, 227);
-  // showGrid();
-
-  fill(0);
-  for(i=0;i<nsnakes;i++){
-    snake[i].display(gridsize)
-    // Updating the space
-    space[snake[i].position.y][snake[i].position.x] = 1
-    // print(snake.position.x,snake.position.y)
-    c = floor(random(4))
-
-    // moving the snake
-    if (c == 0){
-      snake[i].move([1,0],xsegments,ysegments);
-      // print('Move R.',snake.position.x,snake.position.y)
-
-    }
-    else if(c == 1){
-      snake[i].move([-1,0],xsegments,ysegments);
-      // print('Move L.',snake.position.x,snake.position.y)
-    }
-    else if(c == 2){
-      snake[i].move([0,1],xsegments,ysegments);
-      // print('Move D.',snake.position.x,snake.position.y)
-    }
-    else{
-      snake[i].move([0,-1],xsegments,ysegments);
-      // print('Move U.',snake.position.x,snake.position.y)
-    }
+  // showGrid(segments);
+  
+  fill(elc);
+  
+  ellipse((2*x+1)*gridsize/2,(2*y+1)*gridsize/2,gridsize,gridsize)
+  
+  // print(x,y);
+  
+  c = floor(random(4))
+  if (c == 0){
+    x = (x + 1)%(floor(width/gridsize) + 1);
+  }
+  else if(c == 1){
+    y = (y + 1)%(floor(height/gridsize));
+  }
+  else if(c == 2){
+    x = (x - 1)%(floor(width/gridsize) + 1);
+  }
+  else{
+    y = (y - 1)%(floor(height/gridsize));
+  }
+  
+  if (x<0){
+    x = (floor(width/gridsize) + 1) + x;
+  }
+  if (y<0){
+    y = floor(height/gridsize) + y;
+  }
+  
+  if (floor(random(5)) == 0){
+      elc = color(random(255),random(255),random(255))
 
   }
-
-
-  }
+  
+}
 
 // function windowResized(){
 //   screensize = min(windowWidth,windowHeight);
 //   resizeCanvas(screensize,screensize);
 // }
-
-
 function mousePressed() {
-  for(i = 0;i<nsnakes;i++){
-  snake[i].snakecolor =  createVector(random(255),random(255),random(255));
-}
-  // snake.position = createVector(floor(mouseX/gridsize),floor(mouseY/gridsize));
+  elc = color(random(255),random(255),random(255))
 }
 
-function showGrid() {
+function showGrid(n) {
   fill(0);
   strokeWeight(1);
   
