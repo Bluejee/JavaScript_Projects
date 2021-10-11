@@ -1,4 +1,4 @@
-let gridsize = 3;
+let gridsize = 5;
 
 let xsegments;
 let ysegments;
@@ -6,102 +6,277 @@ let ysegments;
 let cwidth;
 let cheight;
 
+//snake
 let snake = [];
-let nsnakes = 500;
+let nsnakes = 50;
 let space = [];
+let snake_collide = false;
 
+//dom
+let collision_checkbox;
+let reset_button;
+let pause_play_button;
+
+let info;
+let snake_number_text;
+let snake_number_input;
+let snake_size_slider;
+let slider_value_text;
 
 function setup() {
+  noLoop();
 
-  cwidth = windowWidth - windowWidth%gridsize;
-
-  cheight = windowHeight - windowHeight%gridsize;
-  
-  createCanvas(cwidth,cheight);
-  
-  xsegments = width/gridsize;
-  ysegments = height/gridsize;
-
+  // Setting up the canvas.
+  cwidth = windowWidth * 0.8 - ((windowWidth * 0.8) % gridsize);
+  cheight = windowHeight - (windowHeight % gridsize);
+  createCanvas(cwidth, cheight);
+  xsegments = width / gridsize;
+  ysegments = height / gridsize;
   // background(9, 132, 227);
-  strokeWeight(0)
-  background(255)
-
-
+  strokeWeight(0);
+  background(0);
   // print('seg = ',xsegments,ysegments)
-  
-  for(i = 0;i<ysegments;i++){
-    space[i] = []
-    for(j = 0;j<xsegments;j++){
+
+  // Setting up the space matrix for collision detection
+  for (i = 0; i < ysegments; i++) {
+    space[i] = [];
+    for (j = 0; j < xsegments; j++) {
       space[i][j] = 0;
     }
-  }  
-  
-  // console.table(space);
-  
-
-  for(i = 0;i<nsnakes;i++){
-    // snake[i] = new Snake(floor(xsegments/2),floor(ysegments/2));
-
-    snake[i] = new Snake(floor(random(xsegments)),floor(random(ysegments)));
   }
-  
+  // console.table(space);
+  // Initializing the snakes.
+  for (i = 0; i < nsnakes; i++) {
+    //snake[i] = new Snake(floor(xsegments / 2), floor(ysegments / 2), 255);
+    let x_pos = floor(random(xsegments));
+    let y_pos = floor(random(ysegments));
+    snake[i] = new Snake(x_pos, y_pos);
+    space[y_pos][x_pos] = 1;
+  }
+
+  // Creating all the dom elemetns for controlling the snakes
+  pause_play_button = createButton("Play");
+  pause_play_button.mousePressed(pauseplay);
+  pause_play_button.style("width", "9%");
+  pause_play_button.style("background-color", color(0, 255, 0));
+
+  info = createDiv(
+    "These are the options that can be manipulated inorder to change the way the simulation works. The effects selected will only effect once the simulation is reset."
+  );
+  info.style("padding", "5px");
+  // info.style('background-color', color(25,23,200,50));
+  info.style("color", "#ff0000");
+
+  snake_number_text = createSpan("Number of Snakes :: ");
+  // snake_number_text.style('padding','5px');
+  snake_number_text.style("color", "#ff0000");
+
+  // snake_number_text.style('background-color',color(255,255,255));
+
+  snake_number_input = createInput("50");
+  snake_number_input.style("width", "2%");
+  // snake_number_input.style('padding','5px');
+
+  // slider_value_text = createP('Snake size :: ');
+  slider_value_text = createDiv("Size of the Snakes :: 5");
+  slider_value_text.style("color", "#ff0000");
+  slider_value_text.style("padding", "5px");
+
+  snake_size_slider = createSlider(2, 20, 5, 1);
+  snake_size_slider.style("width", "18%");
+  snake_size_slider.changed(sizechange);
+
+  collision_checkbox = createCheckbox("Collisions", false);
+  collision_checkbox.style("padding", "5px");
+
+  reset_button = createButton("Reset");
+  reset_button.mousePressed(reset);
+  reset_button.style("width", "9%");
+  reset_button.style("background-color", color(0, 0, 255));
+
+  // collision_checkbox.changed(changeCollide);
+
 }
 
 function draw() {
-  // frameRate(4)
+  // frameRate(1)
   // background(9, 132, 227);
   // showGrid();
-  
+
   fill(0);
-  for(i=0;i<nsnakes;i++){
-    snake[i].display(gridsize)
+  // check if there are any snakes alive. if alive snakes = 0 then do something.
+  if (snake.length == 0) {
+    print("All Snakes Dead.");
+    pause_play_button.html("Play");
+    pause_play_button.style("background-color", color(0, 255, 0));
+    noLoop();
+  }
+
+  for (i = 0; i < snake.length; i++) {
+    
+    let move_dir;// the direction for the snake to move.
+    
+    snake[i].display(gridsize);
     // Updating the space
-    space[snake[i].position.y][snake[i].position.x] = 1
+    space[snake[i].position.y][snake[i].position.x] = 1;
     // print(snake.position.x,snake.position.y)
-    c = floor(random(4))
 
-    // moving the snake
-    if (c == 0){
-      snake[i].move([1,0],xsegments,ysegments);
+    // Collision active check
+    // If the collision is inactive, just move the snake like a random walker with equal probablity.
+    // If the collision is active then check the snake position, and the space matrix and only move in the directions that have a free spot in the space matrix with equal probablit in available directions.
+    // Note that in the collision active case, wraparound is not active. rather the boundary is considerd inaccesible.
+    // If all posibilities are exhausted then kill the snake.
+    if (snake_collide) {
+      // creating a list of possible directions in which the snake can move.(0,1,2,3 :: U R D L)
+      possible_dir = [];
+      //Checking U
+      if (snake[i].position.y > 0) {
+        // need to check the space only if the snake is not on the top border
+        // now that the snake is not on the border we check the space
+        if (space[snake[i].position.y - 1][snake[i].position.x] == 0) {
+          possible_dir.push(0);
+        }
+      }
+      //Checking R
+      if (snake[i].position.x < xsegments - 1) {
+        // need to check the space only if the snake is not on the right border
+        // now that the snake is not on the border we check the space
+        if (space[snake[i].position.y][snake[i].position.x + 1] == 0) {
+          possible_dir.push(1);
+        }
+      }
+      //Checking D
+      if (snake[i].position.y < ysegments - 1) {
+        // need to check the space only if the snake is not on the bottom border
+        // now that the snake is not on the border we check the space
+        if (space[snake[i].position.y + 1][snake[i].position.x] == 0) {
+          possible_dir.push(2);
+        }
+      }
+      //Checking L
+      if (snake[i].position.x > 0) {
+        // need to check the space only if the snake is not on the left border
+        // now that the snake is not on the border we check the space
+        if (space[snake[i].position.y][snake[i].position.x - 1] == 0) {
+          possible_dir.push(3);
+        }
+      }
+
+      // now that we have a list of available directions checking to see if it is to be killed or to be moved.
+      if (possible_dir.length == 0) {
+        // killing the snake.
+        snake[i].alive = false;
+      } else {
+        // as there exist atleast one direction, determining which direction to move the snake in.
+        // we use the length of the list to crearte a random index and use it to pick the direction.
+        move_dir = possible_dir[floor(random(possible_dir.length))];
+      }
+    } else {
+      // moving the snake like a random walker with equal probablities(order is U R D L)
+      move_dir = floor(random(4));
+    }
+
+    
+    // Now that we have the direction to move the snake in, we use the order (0,1,2,3 :: U R D L) to move the snake
+
+    if (move_dir == 0) {
+      snake[i].move([0, -1], xsegments, ysegments);
+      // print('Move U.',snake.position.x,snake.position.y)
+    } else if (move_dir == 1) {
+      snake[i].move([1, 0], xsegments, ysegments);
       // print('Move R.',snake.position.x,snake.position.y)
-
-    }
-    else if(c == 1){
-      snake[i].move([-1,0],xsegments,ysegments);
-      // print('Move L.',snake.position.x,snake.position.y)
-    }
-    else if(c == 2){
-      snake[i].move([0,1],xsegments,ysegments);
+    } else if (move_dir == 2) {
+      snake[i].move([0, 1], xsegments, ysegments);
       // print('Move D.',snake.position.x,snake.position.y)
-    }
-    else{
-      snake[i].move([0,-1],xsegments,ysegments);
+    } else {
+      snake[i].move([-1, 0], xsegments, ysegments);
       // print('Move U.',snake.position.x,snake.position.y)
     }
+  }
   
+  // Once we have completed one frame it is now time to remove all the dead snakes.
+  // we use a reverse loop as we are deleting some of the elment and the index shifts. 
+  // but as the loop is reverse the computation is not affected.
+  for (i = snake.length-1; i >= 0; i--){
+    if(!snake[i].alive){
+      // if snake not alive
+      snake.splice(i,1);
+      // remove the ith element from the list.      
+    }
   }
   
   
-  }
-
-// function windowResized(){
-//   screensize = min(windowWidth,windowHeight);
-//   resizeCanvas(screensize,screensize);
-// }
-
-
-function mousePressed() {
-  for(i = 0;i<nsnakes;i++){
-  snake[i].snakecolor =  createVector(random(255),random(255),random(255));
 }
-  // snake.position = createVector(floor(mouseX/gridsize),floor(mouseY/gridsize));
+
+function changeCollide() {
+  if (this.checked()) {
+    snake_collide = true;
+    console.log("Checking!");
+  } else {
+    snake_collide = false;
+    console.log("Unchecking!");
+  }
+}
+
+function sizechange() {
+  slider_value_text.html("Size of the Snakes :: " + snake_size_slider.value());
+}
+
+function reset() {
+  // reseting the gridsize will have to resize the canvas also. and also change all other properties related with the gridsize.
+  gridsize = snake_size_slider.value();
+  cwidth = windowWidth * 0.8 - ((windowWidth * 0.8) % gridsize);
+  cheight = windowHeight - (windowHeight % gridsize);
+  resizeCanvas(cwidth, cheight);
+  xsegments = width / gridsize;
+  ysegments = height / gridsize;
+
+  if (collision_checkbox.checked()) {
+    snake_collide = true;
+    // console.log("Checking!");
+  } else {
+    snake_collide = false;
+    // console.log("Unchecking!");
+  }
+
+  strokeWeight(0);
+  background(0);
+  // print('seg = ',xsegments,ysegments)
+
+  nsnakes = snake_number_input.value();
+
+  // Setting up the space matrix for collision detection
+  for (i = 0; i < ysegments; i++) {
+    space[i] = [];
+    for (j = 0; j < xsegments; j++) {
+      space[i][j] = 0;
+    }
+  }
+  // console.table(space);
+  // Initializing the snakes.
+  snake = [];
+  for (i = 0; i < nsnakes; i++) {
+    //snake[i] = new Snake(floor(xsegments / 2), floor(ysegments / 2), 255);
+    snake[i] = new Snake(floor(random(xsegments)), floor(random(ysegments)));
+  }
+}
+
+function pauseplay() {
+  if (this.html() == "Play") {
+    this.html("Pause");
+    this.style("background-color", color(255, 0, 0));
+    loop();
+  } else {
+    this.html("Play");
+    this.style("background-color", color(0, 255, 0));
+    noLoop();
+  }
 }
 
 function showGrid() {
   fill(0);
   strokeWeight(1);
-  
-  
+
   for (let i = 0; i < width; i += gridsize) {
     line(i, 0, i, height);
   }
@@ -109,3 +284,15 @@ function showGrid() {
     line(0, i, width, i);
   }
 }
+
+// function windowResized(){
+//   screensize = min(windowWidth,windowHeight);
+//   resizeCanvas(screensize,screensize);
+// }
+
+// function mousePressed() {
+//   for (i = 0; i < snake.length; i++) {
+//     snake[i].snakecolor = createVector(random(255), random(255), random(255));
+//   }
+//   // snake.position = createVector(floor(mouseX/gridsize),floor(mouseY/gridsize));
+// }
