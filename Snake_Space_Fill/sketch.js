@@ -10,6 +10,7 @@ let cheight;
 let snake = [];
 let nsnakes = 50;
 let space = [];
+let available_pos = [];
 let snake_collide = false;
 
 //dom
@@ -37,21 +38,28 @@ function setup() {
   background(0);
   // print('seg = ',xsegments,ysegments)
 
-  // Setting up the space matrix for collision detection
-  for (i = 0; i < ysegments; i++) {
-    space[i] = [];
-    for (j = 0; j < xsegments; j++) {
-      space[i][j] = 0;
+  // Setting up the space matrix for collision detection.
+  // also creating a list of available positions.
+  // the space matrix is a transpose of the actual space and hence should be used as space[y][x]
+  for (r = 0; r < ysegments; r++) {
+    space[r] = [];
+    for (c = 0; c < xsegments; c++) {
+      space[r][c] = 0;
+      available_pos.push([c, r]);
     }
   }
   // console.table(space);
+  print(available_pos.length);
   // Initializing the snakes.
   for (i = 0; i < nsnakes; i++) {
     //snake[i] = new Snake(floor(xsegments / 2), floor(ysegments / 2), 255);
-    let x_pos = floor(random(xsegments));
-    let y_pos = floor(random(ysegments));
+    let available_pos_index = floor(random(available_pos.length));
+    let x_pos = available_pos[available_pos_index][0];
+    let y_pos = available_pos[available_pos_index][1];
     snake[i] = new Snake(x_pos, y_pos);
+    print(y_pos,x_pos)
     space[y_pos][x_pos] = 1;
+    available_pos.splice(available_pos_index, 1);
   }
 
   // Creating all the dom elemetns for controlling the snakes
@@ -95,11 +103,10 @@ function setup() {
   reset_button.style("background-color", color(0, 0, 255));
 
   // collision_checkbox.changed(changeCollide);
-
 }
 
 function draw() {
-  // frameRate(1)
+  // frameRate(10);
   // background(9, 132, 227);
   // showGrid();
 
@@ -112,14 +119,27 @@ function draw() {
     noLoop();
   }
 
+  // Using a seperate loop for display and space updation and another one for computations.
   for (i = 0; i < snake.length; i++) {
-    
-    let move_dir;// the direction for the snake to move.
-    
     snake[i].display(gridsize);
     // Updating the space
     space[snake[i].position.y][snake[i].position.x] = 1;
     // print(snake.position.x,snake.position.y)
+  }
+
+  // Every loop we create a list of available positions to use.
+  // print(available_pos.length);
+  available_pos = [];
+  for (r = 0; r < ysegments; r++) {
+    for (c = 0; c < xsegments; c++) {
+      if (space[r][c] == 0) {
+        available_pos.push([c, r]);
+      }
+    }
+  }
+
+  for (i = 0; i < snake.length; i++) {
+    let move_dir; // the direction for the snake to move.
 
     // Collision active check
     // If the collision is inactive, just move the snake like a random walker with equal probablity.
@@ -176,7 +196,6 @@ function draw() {
       move_dir = floor(random(4));
     }
 
-    
     // Now that we have the direction to move the snake in, we use the order (0,1,2,3 :: U R D L) to move the snake
 
     if (move_dir == 0) {
@@ -193,19 +212,29 @@ function draw() {
       // print('Move U.',snake.position.x,snake.position.y)
     }
   }
-  
+
   // Once we have completed one frame it is now time to remove all the dead snakes.
-  // we use a reverse loop as we are deleting some of the elment and the index shifts. 
+  // we use a reverse loop as we are deleting some of the elment and the index shifts.
   // but as the loop is reverse the computation is not affected.
-  for (i = snake.length-1; i >= 0; i--){
-    if(!snake[i].alive){
+  for (i = snake.length - 1; i >= 0; i--) {
+    if (!snake[i].alive) {
       // if snake not alive
-      snake.splice(i,1);
-      // remove the ith element from the list.      
+      snake.splice(i, 1);
+      // remove the ith element from the list.
+
+      // If there is space remaining for snakes to be born, then create a snake over there and change the space state to one.
+      // Another thing that has to be done is to remove that element from the list of available positions.
+      if (available_pos.length != 0) {
+        let available_pos_index = floor(random(available_pos.length));
+        let x_pos = available_pos[available_pos_index][0];
+        let y_pos = available_pos[available_pos_index][1];
+        let temp = new Snake(x_pos, y_pos);
+        snake.push(temp);
+        space[y_pos][x_pos] = 1;
+        available_pos.splice(available_pos_index, 1);
+      }
     }
   }
-  
-  
 }
 
 function changeCollide() {
