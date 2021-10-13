@@ -16,7 +16,7 @@ let inherit_color = false;
 
 //dom
 let collision_checkbox;
-let ingerit_color_checkbox;
+let inherit_color_checkbox;
 
 let reset_button;
 let pause_play_button;
@@ -100,8 +100,8 @@ function setup() {
   collision_checkbox = createCheckbox("Collisions", false);
   collision_checkbox.style("padding", "5px");
 
-  ingerit_color_checkbox = createCheckbox("Inherit Colour", false);
-  ingerit_color_checkbox.style("padding", "5px");
+  inherit_color_checkbox = createCheckbox("Inherit Colour", false);
+  inherit_color_checkbox.style("padding", "5px");
 
   reset_button = createButton("Reset");
   reset_button.mousePressed(reset);
@@ -282,11 +282,11 @@ function reset() {
     // console.log("Unchecking!");
   }
 
-  if (ingerit_color_checkbox.checked()) {
-    ingerit_color = true;
+  if (inherit_color_checkbox.checked()) {
+    inherit_color = true;
     // console.log("Checking!");
   } else {
-    ingerit_color = false;
+    inherit_color = false;
     // console.log("Unchecking!");
   }
 
