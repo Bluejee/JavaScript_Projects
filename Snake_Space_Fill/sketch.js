@@ -12,9 +12,12 @@ let nsnakes = 50;
 let space = [];
 let available_pos = [];
 let snake_collide = false;
+let inherit_color = false;
 
 //dom
 let collision_checkbox;
+let ingerit_color_checkbox;
+
 let reset_button;
 let pause_play_button;
 
@@ -57,7 +60,7 @@ function setup() {
     let x_pos = available_pos[available_pos_index][0];
     let y_pos = available_pos[available_pos_index][1];
     snake[i] = new Snake(x_pos, y_pos);
-    print(y_pos,x_pos)
+    print(y_pos, x_pos);
     space[y_pos][x_pos] = 1;
     available_pos.splice(available_pos_index, 1);
   }
@@ -96,6 +99,9 @@ function setup() {
 
   collision_checkbox = createCheckbox("Collisions", false);
   collision_checkbox.style("padding", "5px");
+
+  ingerit_color_checkbox = createCheckbox("Inherit Colour", false);
+  ingerit_color_checkbox.style("padding", "5px");
 
   reset_button = createButton("Reset");
   reset_button.mousePressed(reset);
@@ -216,9 +222,12 @@ function draw() {
   // Once we have completed one frame it is now time to remove all the dead snakes.
   // we use a reverse loop as we are deleting some of the elment and the index shifts.
   // but as the loop is reverse the computation is not affected.
+  // In case we want the newborn snake to have the same color as the diying snake, we can store the color and then reuse it.
   for (i = snake.length - 1; i >= 0; i--) {
+    let temp_color;
     if (!snake[i].alive) {
       // if snake not alive
+      temp_color = snake[i].snakecolor;
       snake.splice(i, 1);
       // remove the ith element from the list.
 
@@ -229,6 +238,11 @@ function draw() {
         let x_pos = available_pos[available_pos_index][0];
         let y_pos = available_pos[available_pos_index][1];
         let temp = new Snake(x_pos, y_pos);
+
+        if (inherit_color) {
+          temp.snakecolor = temp_color;
+        }
+
         snake.push(temp);
         space[y_pos][x_pos] = 1;
         available_pos.splice(available_pos_index, 1);
@@ -237,15 +251,15 @@ function draw() {
   }
 }
 
-function changeCollide() {
-  if (this.checked()) {
-    snake_collide = true;
-    console.log("Checking!");
-  } else {
-    snake_collide = false;
-    console.log("Unchecking!");
-  }
-}
+// function changeCollide() {
+//   if (this.checked()) {
+//     snake_collide = true;
+//     console.log("Checking!");
+//   } else {
+//     snake_collide = false;
+//     console.log("Unchecking!");
+//   }
+// }
 
 function sizechange() {
   slider_value_text.html("Size of the Snakes :: " + snake_size_slider.value());
@@ -265,6 +279,14 @@ function reset() {
     // console.log("Checking!");
   } else {
     snake_collide = false;
+    // console.log("Unchecking!");
+  }
+
+  if (ingerit_color_checkbox.checked()) {
+    ingerit_color = true;
+    // console.log("Checking!");
+  } else {
+    ingerit_color = false;
     // console.log("Unchecking!");
   }
 
