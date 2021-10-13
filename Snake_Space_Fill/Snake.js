@@ -29,18 +29,29 @@ class Snake {
     // print('Corrected Pos = ',this.position.x,this.position.y)
   }
 
-  display(size) {
-    fill(this.snakecolor.x, this.snakecolor.y, this.snakecolor.z, this.transparency);
-    // print((2*(this.position.x)+1)*size/2)
-    ellipse(
-      ((2 * this.position.x + 1) * size) / 2,
-      ((2 * this.position.y + 1) * size) / 2,
-      size,
-      size
+  display(size, shape) {
+    fill(
+      this.snakecolor.x,
+      this.snakecolor.y,
+      this.snakecolor.z,
+      this.transparency
     );
-    // rectMode(CENTER)
-    // rect(((2 * this.position.x + 1) * size) / 2,
-    //   ((2 * this.position.y + 1) * size) / 2,
-    //   size,size)
+    // print((2*(this.position.x)+1)*size/2)
+    if (shape == 'Circle') {
+      ellipse(
+        ((2 * this.position.x + 1) * size) / 2,
+        ((2 * this.position.y + 1) * size) / 2,
+        size,
+        size
+      );
+    } else {
+      rectMode(CENTER);
+      rect(
+        ((2 * this.position.x + 1) * size) / 2,
+        ((2 * this.position.y + 1) * size) / 2,
+        size,
+        size
+      );
+    }
   }
 }

@@ -13,10 +13,13 @@ let space = [];
 let available_pos = [];
 let snake_collide = false;
 let inherit_color = false;
+let shape = 'Circle';
 
 //dom
 let collision_checkbox;
 let inherit_color_checkbox;
+
+let shape_radio;
 
 let reset_button;
 let pause_play_button;
@@ -60,7 +63,7 @@ function setup() {
     let x_pos = available_pos[available_pos_index][0];
     let y_pos = available_pos[available_pos_index][1];
     snake[i] = new Snake(x_pos, y_pos);
-    print(y_pos, x_pos);
+    // print(y_pos, x_pos);
     space[y_pos][x_pos] = 1;
     available_pos.splice(available_pos_index, 1);
   }
@@ -103,6 +106,12 @@ function setup() {
   inherit_color_checkbox = createCheckbox("Inherit Colour", false);
   inherit_color_checkbox.style("padding", "5px");
 
+  shape_radio = createRadio()
+  shape_radio.option('Circle');
+  shape_radio.option('Square');
+  shape_radio.style("padding", "5px");
+  shape_radio.selected('Circle')
+
   reset_button = createButton("Reset");
   reset_button.mousePressed(reset);
   reset_button.style("width", "9%");
@@ -127,7 +136,7 @@ function draw() {
 
   // Using a seperate loop for display and space updation and another one for computations.
   for (i = 0; i < snake.length; i++) {
-    snake[i].display(gridsize);
+    snake[i].display(gridsize,shape);
     // Updating the space
     space[snake[i].position.y][snake[i].position.x] = 1;
     // print(snake.position.x,snake.position.y)
@@ -290,6 +299,10 @@ function reset() {
     // console.log("Unchecking!");
   }
 
+  shape = shape_radio.value();
+
+  
+  
   strokeWeight(0);
   background(0);
   // print('seg = ',xsegments,ysegments)
