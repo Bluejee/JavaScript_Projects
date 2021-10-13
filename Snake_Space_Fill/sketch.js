@@ -24,7 +24,8 @@ let shape_radio;
 let reset_button;
 let pause_play_button;
 
-let info;
+let info1;
+let info2;
 let snake_number_text;
 let snake_number_input;
 let snake_size_slider;
@@ -34,8 +35,8 @@ function setup() {
   noLoop();
 
   // Setting up the canvas.
-  cwidth = windowWidth * 0.8 - ((windowWidth * 0.8) % gridsize);
-  cheight = windowHeight - (windowHeight % gridsize);
+  cwidth = (windowWidth) - ((windowWidth) % gridsize);
+  cheight = (windowHeight-35) - ((windowHeight-35) % gridsize);
   createCanvas(cwidth, cheight);
   xsegments = width / gridsize;
   ysegments = height / gridsize;
@@ -69,17 +70,27 @@ function setup() {
   }
 
   // Creating all the dom elemetns for controlling the snakes
+
+  info1 = createSpan(
+    "Scroll Down for Controls and Information."
+  );
+  info1.style("padding", "5px");
+  info1.style('background-color', color(0));
+  info1.style("width", "100%");
+  info1.style("color", "#ff0000");
+
   pause_play_button = createButton("Play");
   pause_play_button.mousePressed(pauseplay);
-  pause_play_button.style("width", "9%");
+  pause_play_button.style("width", "70px");
   pause_play_button.style("background-color", color(0, 255, 0));
 
-  info = createDiv(
+  
+  info2 = createDiv(
     "These are the options that can be manipulated inorder to change the way the simulation works. The effects selected will only effect once the simulation is reset."
   );
-  info.style("padding", "5px");
+  info2.style("padding", "5px");
   // info.style('background-color', color(25,23,200,50));
-  info.style("color", "#ff0000");
+  info2.style("color", "#ff0000");
 
   snake_number_text = createSpan("Number of Snakes :: ");
   // snake_number_text.style('padding','5px');
@@ -88,7 +99,7 @@ function setup() {
   // snake_number_text.style('background-color',color(255,255,255));
 
   snake_number_input = createInput("50");
-  snake_number_input.style("width", "2%");
+  snake_number_input.style("width", "20px");
   // snake_number_input.style('padding','5px');
 
   // slider_value_text = createP('Snake size :: ');
@@ -277,9 +288,9 @@ function sizechange() {
 function reset() {
   // reseting the gridsize will have to resize the canvas also. and also change all other properties related with the gridsize.
   gridsize = snake_size_slider.value();
-  cwidth = windowWidth * 0.8 - ((windowWidth * 0.8) % gridsize);
-  cheight = windowHeight - (windowHeight % gridsize);
-  resizeCanvas(cwidth, cheight);
+  cwidth = (windowWidth) - ((windowWidth) % gridsize);
+  cheight = (windowHeight-35) - ((windowHeight-35) % gridsize);
+  createCanvas(cwidth, cheight);
   xsegments = width / gridsize;
   ysegments = height / gridsize;
 
