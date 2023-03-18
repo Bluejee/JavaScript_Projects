@@ -11,12 +11,20 @@ let circles;
 let img;
 let cnv;
 function preload() {
-  img = loadImage('shradha.jpg');
+
+  let randomIndex = Math.floor(Math.random() * 3); // Generate a random number between 0 and 2
+  if (randomIndex === 0) {
+    img = loadImage("./Images/Shradha_1.jpg"); // Select img_1 if randomIndex is 0
+  } else if (randomIndex === 1) {
+    img = loadImage("./Images/Shradha_2.jpg"); // Select img_2 if randomIndex is 1
+  } else {
+    img = loadImage("./Images/Shradha_3.jpg"); // Select img_3 if randomIndex is 2
+  }
 }
 
 function setup() {
   cnv = createCanvas(img.width, img.height);
-  cnv.parent('Main_div');
+  cnv.parent("Main_div");
   img.loadPixels();
   circles = [];
 }
@@ -27,7 +35,7 @@ function draw() {
   let total = 10;
   let count = 0;
   let attempts = 0;
-  let max_r = 10;
+  let max_r = 6; 
 
   while (count < total) {
     let newC = newCircle();
@@ -38,16 +46,16 @@ function draw() {
     attempts++;
     if (attempts > 1000) {
       noLoop();
-      console.log('finished');
+      console.log("finished");
       break;
-    } 
+    }
   }
 
   for (let i = 0; i < circles.length; i++) {
     let circl = circles[i];
 
     if (circl.growing) {
-      if (circl.r >= max_r){
+      if (circl.r >= max_r) {
         circl.growing = false;
       }
       if (circl.edges()) {
