@@ -14,9 +14,9 @@ function preload() {
 
   let randomIndex = Math.floor(Math.random() * 3); // Generate a random number between 0 and 2
   if (randomIndex === 0) {
-    img = loadImage("./Images/Shradha_1.jpg"); // Select img_1 if randomIndex is 0
+    img = loadImage("./Images/Shradha_1_s.jpg"); // Select img_1 if randomIndex is 0
   } else if (randomIndex === 1) {
-    img = loadImage("./Images/Shradha_2.jpg"); // Select img_2 if randomIndex is 1
+    img = loadImage("./Images/Shradha_2_s.jpg"); // Select img_2 if randomIndex is 1
   } else {
     img = loadImage("./Images/Shradha_3.jpg"); // Select img_3 if randomIndex is 2
   }
